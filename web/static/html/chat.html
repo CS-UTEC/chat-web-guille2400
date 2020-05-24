@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat</title>
+    <script src="../js/libs/jquery-3.3.1.js" ></script>
+    <link rel="stylesheet" href="../css/bootstrap.css">
+    <script src="../js/libs/chat.js" ></script>
+</head>
+
+<body>
+    <table>
+        <tr>
+        <td>
+            <div id="contacts">
+                <button type="button" class="btn btn-primary" onclick="get_current()" >Get current users</button>
+            </div>
+            <div id="users">    
+            </div>
+        </td>
+
+        <td>
+            <div id="boxMessage">
+            </div>
+            <div>
+                <input type="text" size="100" id="txtMessage">
+            </div>
+
+            <div>
+                <button type="button" class="btn btn-primary" onclick="sendMessage()">Send</button>
+            </div>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
