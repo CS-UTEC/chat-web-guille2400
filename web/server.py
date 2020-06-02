@@ -135,6 +135,19 @@ def get_messages():
     return Response(json.dumps(data, cls=connector.AlchemyEncoder), mimetype='application/json')
 
 
+@app.route('/messages/<user_from_id>/<user_to_id>', methods = ['GET'])
+def get_messagesfrom(user_from_id, user_to_id ):
+    db_session = db.getSession(engine)
+    messages = db_session.query(entities.Message).filter(
+        entities.Message.user_from_id == user_from_id).filter(
+        entities.Message.user_to_id == user_to_id
+    )
+    data = []
+    for message in messages:
+        data.append(message)
+    return Response(json.dumps(data, cls=connector.AlchemyEncoder), mimetype='application/json')
+
+
 @app.route('/messages', methods = ['PUT'])
 def update_message():
     session = db.getSession(engine)
