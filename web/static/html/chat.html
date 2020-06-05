@@ -8,26 +8,22 @@
     <script src="../js/libs/chat.js" ></script>
 </head>
 
-<body>
-    <table>
+<body>  
+    <table width="100%" border="1px solid">
         <tr>
-        <td>
+        <td width="25%">
             <div id="contacts">
-                <button type="button" class="btn btn-primary" onclick="get_current()" >Get current users</button>
+                <button type="button" class="btn btn-primary" onclick='get_current()'>Get current users</button>
             </div>
             <div id="users">    
             </div>
         </td>
 
-        <td>
+        <td width="75%" id="col">
             <div id="boxMessage">
             </div>
-            <div>
-                <input type="text" size="100" id="txtMessage">
-            </div>
-
-            <div>
-                <button type="button" class="btn btn-primary" onclick="sendMessage()">Send</button>
+            <div id='inputBox'>
+            
             </div>
         </td>
     </tr>

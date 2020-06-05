@@ -39,30 +39,32 @@ $(function(){
             format: "MM/dd/yyyy hh:mm",
             allowEditing: false
         }, {
-            dataField: "user_from",
+            dataField: "user_from_id",
             caption: "User from",
             lookup: {
                     dataSource: DevExpress.data.AspNet.createStore({
                         key: "id",
-                        loadUrl: "http://127.0.0.21:8080/users",
+                        loadUrl: "/users",
                         onBeforeSend: function(method, ajaxOptions) {
                             ajaxOptions.xhrFields = { withCredentials: true };
                         }
                     }),
-                    displayExpr: "id"
+                    displayExpr: "username",
+                    valueExpr:"id"
                 }
         }, {
-            dataField: "user_to",
+            dataField: "user_to_id",
             caption: "User to",
             lookup: {
                     dataSource: DevExpress.data.AspNet.createStore({
                         key: "id",
-                        loadUrl: "http://127.0.0.21:8080/users",
+                        loadUrl: "/users",
                         onBeforeSend: function(method, ajaxOptions) {
                             ajaxOptions.xhrFields = { withCredentials: true };
                         }
                     }),
-                    displayExpr: "id"
+                    displayExpr: "username",
+                    valueExpr:"id"
                 }
         },
             ],

@@ -3,6 +3,7 @@ from database import connector
 from model import entities
 import json
 import time
+from sqlalchemy import or_
 
 db = connector.Manager()
 engine = db.createEngine()
@@ -116,6 +117,19 @@ def create_message():
     session.commit()
     return 'Created Message'
 
+@app.route('/messages/chat', methods = ['POST'])
+def create_message_chat():
+    c = json.loads(request.data)
+    message = entities.Message(
+        content=c['content'],
+        user_from_id=c['user_from_id'],
+        user_to_id=c['user_to_id'],
+    )
+    session = db.getSession(engine)
+    session.add(message)
+    session.commit()
+    return 'Created Message'
+
 @app.route('/messages/<id>', methods = ['GET'])
 def get_message(id):
     db_session = db.getSession(engine)
@@ -138,13 +152,18 @@ def get_messages():
 @app.route('/messages/<user_from_id>/<user_to_id>', methods = ['GET'])
 def get_messagesfrom(user_from_id, user_to_id ):
     db_session = db.getSession(engine)
-    messages = db_session.query(entities.Message).filter(
-        entities.Message.user_from_id == user_from_id).filter(
-        entities.Message.user_to_id == user_to_id
-    )
-    data = []
-    for message in messages:
-        data.append(message)
+    messagesto = db_session.query(entities.Message).filter(or_(
+        entities.Message.user_from_id == user_from_id, entities.Message.user_from_id == user_to_id)).filter(or_(
+        entities.Message.user_to_id == user_to_id, entities.Message.user_to_id == user_from_id
+    ))
+    # messages  from = db_session.query(entities.Message).filter(
+    #     entities.Message.user_from_id == user_to_id).filter(
+    #     entities.Message.user_to_id == user_from_id
+    # )
+    data = messagesto[:]
+    # for messages in messagesfrom:
+    #     data.append(messages)
+    print(data)
     return Response(json.dumps(data, cls=connector.AlchemyEncoder), mimetype='application/json')
 
 
