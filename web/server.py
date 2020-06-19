@@ -3,13 +3,17 @@ from database import connector
 from model import entities
 import json
 import time
+from database import connector
+from datetime import datetime
 from sqlalchemy import or_
+import threading
 
 db = connector.Manager()
 engine = db.createEngine()
 
 app = Flask(__name__)
 
+contador = 0
 
 @app.route('/static/<content>')
 def static_content(content):
@@ -71,11 +75,24 @@ def get_user(id):
     message = { 'status': 404, 'message': 'Not Found'}
     return Response(json.dumps(message), status=404, mimetype='application/json')
 
+key_users = 'users'
+cache = {}
+
+
 @app.route('/users', methods = ['GET'])
 def get_users():
-    session = db.getSession(engine)
-    dbResponse = session.query(entities.User)
-    data = dbResponse[:]
+    data = []
+    update_cache: bool = False
+    max_time: int = 20
+    if key_users in cache and (datetime.now() - cache[key_users]['time']).total_seconds() < 20:
+        #GET
+        data=cache[key_users]['data']
+    else:
+        session = db.getSession(engine)
+        dbResponse = session.query(entities.User).order_by(entities.User.username)
+        data = dbResponse[:]
+        #SET CACHE
+        cache[key_users] = {'data':data, 'time':datetime.now()}
     return Response(json.dumps(data, cls=connector.AlchemyEncoder), mimetype='application/json')
 
 @app.route('/users', methods = ['PUT'])
@@ -134,6 +151,7 @@ def create_message_chat():
 def get_message(id):
     db_session = db.getSession(engine)
     messages = db_session.query(entities.Message).filter(entities.Message.id == id)
+    db_session.close()
     for message in messages:
         js = json.dumps(message, cls=connector.AlchemyEncoder)
         return Response(js, status=200, mimetype='application/json')
@@ -141,11 +159,29 @@ def get_message(id):
     message = {'status': 404, 'message': 'Not Found'}
     return Response(message, status=404, mimetype='application/json')
 
+key_messages = 'messages'
+cache_messages = {}
+
 @app.route('/messages', methods = ['GET'])
+# @synchronized
 def get_messages():
-    sessionc = db.getSession(engine)
-    dbResponse = sessionc.query(entities.Message)
-    data = dbResponse[:]
+    global contador 
+    data = []
+    update_cache2: bool = False
+    max_time2: int = 20
+    #synchronized(db_log)
+    lock = threading.Lock()
+    lock.acquire()
+    print(contador)
+    if key_messages in cache and (datetime.now() - cache_messages[key_messages]['time']).total_seconds() < 20:
+        #GET
+        data=cache_messages[key_messages]['data']
+    else:
+        contador +=1
+        sessionc = db.getSession(engine)
+        dbResponse = sessionc.query(entities.Message)
+        data = dbResponse[:]
+        lock.release()
     return Response(json.dumps(data, cls=connector.AlchemyEncoder), mimetype='application/json')
 
 
